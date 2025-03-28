@@ -14,6 +14,11 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->put('/users/{id}', 'UserController@update'); // Update user
     $router->patch('/users/{id}', 'UserController@update'); // Partial update
     $router->delete('/users/{id}', 'UserController@delete'); // Delete user
+
+
+    $router->get('/usersjob', 'UserJobController@index');
+    $router->get('/usersjob/{id}', 'UserJobController@show');
+
 });
 
 // New Unsecured Routes without /api prefix (new addition)
@@ -24,4 +29,7 @@ $router->group([], function () use ($router) {
     $router->put('/users/{id}', 'UserController@update'); // Update user
     $router->patch('/users/{id}', 'UserController@update'); // Partial user update
     $router->delete('/users/{id}', 'UserController@delete'); // Delete user
+
+    $router->get('/usersjob', 'UserJobController@index');
+    $router->get('/userjob/{id}', 'UserJobController@show');
 });
