@@ -17,7 +17,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
 
 
     $router->get('/usersjob', 'UserJobController@index');
-    $router->get('/usersjob/{id}', 'UserJobController@show');
+    $router->get('/userjob/{id}', 'UserJobController@show');
 
 });
 
