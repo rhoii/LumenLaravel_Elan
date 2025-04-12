@@ -4,60 +4,68 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Response;
-use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
-use App\Models\UserJob;
-use DB;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserController extends Controller
 {
-    use ApiResponser; // Use the ApiResponser trait
-
     private $request;
 
-    public function __construct(Request $request){
+    public function __construct(Request $request)
+    {
         $this->request = $request;
     }
 
-    /* Return the list of users */
-    public function index(){
+    protected function successResponse($data, $code = Response::HTTP_OK)
+    {
+        return response()->json(['data' => $data], $code);
+    }
+
+    protected function errorResponse($message, $code)
+    {
+        return response()->json(['error' => $message, 'code' => $code], $code);
+    }
+
+    public function index()
+    {
         $users = User::all();
         return $this->successResponse($users);
     }
 
-    /* Get all users */
-    public function getUsers(){
+    public function getUsers()
+    {
         $users = User::all();
         return $this->successResponse($users);
     }
 
-    /*Add a new user*/
-    public function add(Request $request){
-        $rules = [
-            'username' => 'required|max:20',
-            'password' => 'required|max:20',
-            'gender' => 'required|in:Male,Female',
-            'jobid' => 'required|numeric|min:1|not_in:0',
-        ];
+    public function add(Request $request)
+{
+    $rules = [
+        'username' => 'required|max:20',
+        'password' => 'required|max:20',
+        'gender' => 'required|in:Male,Female',
+        'jobid' => 'required|numeric|min:1|not_in:0',
+    ];
 
-        $validator = $this->validate($request, $rules);
+    $this->validate($request, $rules);
+    $user = User::create($request->all());
+    return $this->successResponse($user, Response::HTTP_CREATED);
+}
 
-        if ($validator instanceof \Illuminate\Http\JsonResponse) {
-            return $validator; // Return validation errors directly
-        }
 
-        // Validate if Jobid is found in the table tbluserjob
+    public function show($id)
+    {
         try {
-            UserJob::findOrFail($request->jobid);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->errorResponse('Does not exist any instance of userjob with the given id', Response::HTTP_NOT_FOUND, 1);
+            $user = User::findOrFail($id);
+            return $this->successResponse($user);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorResponse('User ID does not exist', Response::HTTP_NOT_FOUND);
         }
+    }   
 
-        $user = User::create($request->all()); // Include all fields from the request
-        return $this->successResponse($user, Response::HTTP_CREATED);
-    }
-
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $rules = [
             'username' => 'max:20',
             'password' => 'max:20',
@@ -65,29 +73,31 @@ class UserController extends Controller
             'jobid' => 'required|numeric|min:1|not_in:0',
         ];
 
-        $validator = $this->validate($request, $rules);
+        $this->validate($request, $rules);
 
-        if ($validator instanceof \Illuminate\Http\JsonResponse) {
-            return $validator; // Return validation errors directly
-        }
-
-        // Validate if Jobid is found in the table tbluserjob
         try {
-            UserJob::findOrFail($request->jobid);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->errorResponse('Does not exist any instance of userjob with the given id', Response::HTTP_NOT_FOUND, 1);
+            $user = User::findOrFail($id);
+            $user->fill($request->all());
+
+            if ($user->isClean()) {
+                return $this->errorResponse('At least one value must change', Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $user->save();
+            return $this->successResponse($user);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorResponse('User ID does not exist', Response::HTTP_NOT_FOUND);
         }
+    }
 
-        $user = User::findOrFail($id);
-
-        $user->fill($request->all()); // Include all fields from the request
-
-        // if no changes happen
-        if ($user->isClean()) {
-            return $this->errorResponse('At least one value must change', Response::HTTP_UNPROCESSABLE_ENTITY, 1);
+    public function delete($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+            return $this->successResponse(['message' => 'User deleted successfully']);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorResponse('User ID does not exist', Response::HTTP_NOT_FOUND);
         }
-
-        $user->save();
-        return $this->successResponse($user);
     }
 }
