@@ -1,20 +1,18 @@
 <?php
 
-    namespace App\Models;
+namespace App\Models;
 
-    use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
-    class UserJob extends Model{
-        protected $table = 'usertablejob';
-        protected $fillable = [
-        'jobid', 'jobname',
-    ];
-
-    
-    //The code below will not require the field create_at and update_at in Eloquent
-    public $timestamps = false;
-    
-    //The code will customize your primary key field name, default in Eloquent is 'id'
-     protected $primaryKey = 'jobid';
-     
+class UserJob extends Model
+{
+    protected $table = 'tbluserjob';
+    protected $primaryKey = 'jobid';
+    public $timestamps = true; 
+    protected $fillable = ['jobid', 'jobname']; 
+    // Define the relationship with the User model (one-to-many)
+    public function users()
+    {
+        return $this->hasMany(User::class, 'jobid');
+    }
 }

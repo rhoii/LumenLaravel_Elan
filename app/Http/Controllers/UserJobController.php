@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
-//use App\User;
-use App\Models\UserJob; // Your model is located inside Models Folder
-use Illuminate\Http\Response; // Response Components
-use App\Traits\ApiResponser; // Use to standardize our code for API response
-use Illuminate\Http\Request; // Handling HTTP request in Lumen
-use DB; // If you're not using Lumen Eloquent, you can use DB component in Lumen
+use App\Models\UserJob;
+use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use App\Traits\ApiResponser;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserJobController extends Controller
 {
-    // Use to add your Traits ApiResponser
     use ApiResponser;
 
     private $request;
@@ -22,22 +20,27 @@ class UserJobController extends Controller
     }
 
     /**
-     * Return the list of usersjob
-     * @return Illuminate\Http\Response
+     * Return the list of user jobs
+     * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $usersjob = UserJob::all();
-        return $this->successResponse($usersjob);
+        $userJobs = UserJob::all();
+        return $this->successResponse($userJobs);
     }
 
     /**
-     * Obtains and show one userjob
-     * @return Illuminate\Http\Response
+     * Get a single user job by ID
+     * @param int $id
+     * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $userjob = UserJob::findOrFail($id);    
-        return $this->successResponse($userjob);
+        try {
+            $userJob = UserJob::findOrFail($id);
+            return $this->successResponse($userJob);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorResponse('UserJob ID does not exist', Response::HTTP_NOT_FOUND);
+        }
     }
 }
