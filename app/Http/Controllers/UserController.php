@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserJob;
+
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -49,7 +51,9 @@ class UserController extends Controller
     ];
 
     $this->validate($request, $rules);
-    $user = User::create($request->all());
+    $userjob = UserJob::findOrFail($request->jobid);    
+    $user = User::create($request->jobid);
+
     return $this->successResponse($user, Response::HTTP_CREATED);
 }
 
