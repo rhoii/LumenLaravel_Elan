@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\UserJob;
-
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -42,20 +40,18 @@ class UserController extends Controller
     }
 
     public function add(Request $request)
-    {
-        $rules = [
-            'username' => 'required|max:20',
-            'password' => 'required|max:20',
-            'gender'   => 'required|in:Male,Female',
-            'jobid' => 'required|numeric|min:1|not_in:0',
-        ];
+{
+    $rules = [
+        'username' => 'required|max:20',
+        'password' => 'required|max:20',
+        'gender' => 'required|in:Male,Female',
+    ];
 
-        $this->validate($request, $rules);
-        $userjob = UserJob::findOrFail($request->jobid);    
-        $user = User::create($request->all());
+    $this->validate($request, $rules);
+    $user = User::create($request->all());
+    return $this->successResponse($user, Response::HTTP_CREATED);
+}
 
-        return $this->successResponse($user, Response::HTTP_CREATED);
-    }
 
     public function show($id)
     {
@@ -65,15 +61,14 @@ class UserController extends Controller
         } catch (ModelNotFoundException $e) {
             return $this->errorResponse('User ID does not exist', Response::HTTP_NOT_FOUND);
         }
-    }
+    }   
 
     public function update(Request $request, $id)
     {
         $rules = [
             'username' => 'max:20',
             'password' => 'max:20',
-            'gender'   => 'in:Male,Female',
-            'jobid'    => 'required|numeric|min:1|not_in:0',
+            'gender' => 'in:Male,Female',
         ];
 
         $this->validate($request, $rules);

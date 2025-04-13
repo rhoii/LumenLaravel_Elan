@@ -3,18 +3,15 @@
 namespace App\Exceptions;
 
 use App\Traits\ApiResponser;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
-
-// If you're using Guzzle for HTTP client calls
-use GuzzleHttp\Exception\ClientException;
 
 class Handler extends ExceptionHandler
 {
@@ -89,14 +86,7 @@ class Handler extends ExceptionHandler
             return $this->errorResponse($exception->getMessage(), Response::HTTP_UNAUTHORIZED);
         }
 
-        // Guzzle ClientException (when calling external services)
-        if ($exception instanceof ClientException) {
-            $message = $exception->getResponse()->getBody()->getContents();
-            $code = $exception->getCode();
-            return $this->errorResponse($message, $code ?: Response::HTTP_BAD_REQUEST);
-        }
-
-        // Show full error in debug mode
+        // If running in development, show the full error
         if (env('APP_DEBUG', false)) {
             return parent::render($request, $exception);
         }
