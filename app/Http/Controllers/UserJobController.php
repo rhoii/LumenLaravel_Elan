@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserJob; // Your model is located inside the Models folder
-use Illuminate\Http\Response; // Response components
-use App\Traits\ApiResponser; // Used to standardize API responses
-use Illuminate\Http\Request; // Handles HTTP requests in Lumen
-use DB; // If you're not using Lumen Eloquent, you can use DB component in Lumen
+use App\Models\UserJob;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Traits\ApiResponser;
+use DB;
 
 class UserJobController extends Controller
 {
-    use ApiResponser; // Adds the ApiResponser Trait
+    use ApiResponser;
 
     private $request;
 
@@ -21,9 +21,10 @@ class UserJobController extends Controller
 
     /**
      * Return the list of user jobs
-     * @return Illuminate\Http\Response
+     * 
+     * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $usersjob = UserJob::all();
         return $this->successResponse($usersjob);
@@ -31,9 +32,11 @@ class UserJobController extends Controller
 
     /**
      * Obtains and shows one user job
-     * @return Illuminate\Http\Response
+     * 
+     * @param int $id
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show($id): JsonResponse
     {
         $userjob = UserJob::findOrFail($id);
         return $this->successResponse($userjob);
